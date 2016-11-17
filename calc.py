@@ -10,7 +10,7 @@ begin   = 0
 flag_e  = 0
 flag_i  = 0
 calc_list = []
-slow_list = []
+stat_list = {}
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "heib:m:", ["help", "interactive"])
@@ -92,12 +92,20 @@ def calc_table():
         time_e = time.time()
         time_s = time_e - time_b
 
+        ans = unicode(ans, 'utf-8')
         if (ans == 'q'):
-            sys.exit(0)
-        elif (int(ans) == res):
+            return
+        elif (ans.isnumeric() and int(ans) == res):
             print ("correct! spend %ds" % time_s)
         else:
+            time_s = 10000
             print ("wrong, correct result is %d" % res)
+        stat_list[str] = time_s
+
+def show_slow():
+    slow_list = sorted(stat_list.items(), lambda x, y: cmp(x[1], y[1]), reverse=True)
+    for k,v in slow_list:
+        print ("%s spend %ds" % (k, v))
 
 def main():
     create_table()
@@ -106,5 +114,6 @@ def main():
         show_table()
     else:
         calc_table()
+        show_slow()
 
 main()
