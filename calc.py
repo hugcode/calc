@@ -1,16 +1,19 @@
 #!/usr/bin/python
 
-import random, sys, getopt
+import random, sys, getopt, time
 
 def usage():
     print ("%s -m <max value>" % sys.argv[0])
 
-max = 10
-begin = 0
+max     = 10
+begin   = 0
+flag_e  = 0
+flag_i  = 0
 calc_list = []
+slow_list = []
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "hsb:m:", ["help"])
+    opts, args = getopt.getopt(sys.argv[1:], "heib:m:", ["help", "interactive"])
 except getopt.GetoptError:
     usage()
     sys.exit(2);
@@ -20,38 +23,88 @@ for opt,arg in opts:
         max = int(arg)
     if opt == "-b":
         begin = int(arg)
+    if opt == "-e":
+        flag_e = 1
+    if opt in ("-i", "--interactive"):
+        flag_i = 1
     if opt in ("-h", "--help"):
         usage()
         sys.exit(0)
 
-i = begin
-while (i <= max):
-    j = begin
-    while(j <= max):
-        if ((i+j) <= max):
-            str = "%2d+%2d=" % (i,j)
-            calc_list.append(str)
-        if (j<=i):
-            str = "%2d-%2d=" % (i,j)
-            calc_list.append(str)
-        j = j+1
-    i = i+1
+def create_table():
+    i = begin
+    while (i <= max):
+        j = begin
+        if (flag_e == 1):
+            max_j = i
+        else:
+            max_j = max
+        while(j <= max_j):
+            if ((i+j) <= max):
+                calc_list.append((i,'+',j))
+            if (j<=i):
+                calc_list.append((i,'-',j))
+            j = j+1
+        i = i+1
 
-i = 0
-total = len(calc_list)
-while (i < total/2):
-    tmp_i = random.randint(0,total-1)
-    tmp_j = random.randint(0,total-1)
-    tmp_s = calc_list[tmp_i]
-    calc_list[tmp_i] = calc_list[tmp_j]
-    calc_list[tmp_j] = tmp_s
-    i = i+1
+def random_table():
+    i = 0
+    total = len(calc_list)
+    while (i < total):
+        tmp_i = random.randint(0,total-1)
+        tmp_j = random.randint(0,total-1)
+        tmp_s = calc_list[tmp_i]
+        calc_list[tmp_i] = calc_list[tmp_j]
+        calc_list[tmp_j] = tmp_s
+        i = i+1
 
-i = 0
-while (i < total):
-    print ("%-10s" % calc_list[i]),
-    i = i+1
-    if (i % 5 == 0):
-        print("")
-    if (i % 20 == 0):
-        print("")
+def show_table():
+    i = 0
+    total = len(calc_list)
+    while (i < total):
+        elm = calc_list[i]
+        str = "%d%s%d=" % (elm[0],elm[1],elm[2])
+        print ("%10s" % str),
+        i = i+1
+        if (i % 5 == 0):
+            print("")
+        if (i % 20 == 0):
+            print("")
+
+def calc_table():
+    i = 0
+    total = len(calc_list)
+    while (i < total):
+        elm = calc_list[i]
+        i = i+1
+
+        str = "%d%s%d=" % (elm[0],elm[1],elm[2])
+        if (elm[1] == '+'):
+            res = elm[0] + elm[2]
+        elif (elm[1] == '-'):
+            res = elm[0] - elm[2]
+        else:
+            sys.exit(2)
+
+        print ("%10s" % str),
+        time_b = time.time()
+        ans = raw_input("")
+        time_e = time.time()
+        time_s = time_e - time_b
+
+        if (ans == 'q'):
+            sys.exit(0)
+        elif (int(ans) == res):
+            print ("correct! spend %ds" % time_s)
+        else:
+            print ("wrong, correct result is %d" % res)
+
+def main():
+    create_table()
+    random_table()
+    if (flag_i == 0):
+        show_table()
+    else:
+        calc_table()
+
+main()
