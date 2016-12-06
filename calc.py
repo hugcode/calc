@@ -7,13 +7,15 @@ def usage():
 
 max     = 10
 begin   = 0
+beginB  = 0
 flag_e  = 0
 flag_i  = 0
+flag_j  = 0
 calc_list = []
 stat_list = {}
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "heib:m:", ["help", "interactive"])
+    opts, args = getopt.getopt(sys.argv[1:], "heijb:m:B:", ["help", "interactive"])
 except getopt.GetoptError:
     usage()
     sys.exit(2);
@@ -23,8 +25,12 @@ for opt,arg in opts:
         max = int(arg)
     if opt == "-b":
         begin = int(arg)
+    if opt == "-B":
+        beginB = int(arg)
     if opt == "-e":
         flag_e = 1
+    if opt == "-j":
+        flag_j = 1
     if opt in ("-i", "--interactive"):
         flag_i = 1
     if opt in ("-h", "--help"):
@@ -34,15 +40,23 @@ for opt,arg in opts:
 def create_table():
     i = begin
     while (i <= max):
-        j = begin
+        j = beginB
         if (flag_e == 1):
             max_j = i
         else:
             max_j = max
         while(j <= max_j):
             if ((i+j) <= max):
+                if (flag_j == 1):
+                    if ((i%10 + j%10) >= 10):
+                        j = j+1
+                        continue
                 calc_list.append((i,'+',j))
             if (j<=i):
+                if (flag_j == 1):
+                    if ((j%10 > i%10)):
+                        j = j+1
+                        continue
                 calc_list.append((i,'-',j))
             j = j+1
         i = i+1
@@ -99,7 +113,7 @@ def calc_table():
             print ("correct! spend %ds" % time_s)
         else:
             time_s = 10000
-            print ("wrong, correct result is %d" % res)
+            print ("wrong, correct answer is %d" % res)
         stat_list[str] = time_s
 
 def show_slow():
